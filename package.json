@@ -1,0 +1,60 @@
+{
+  "private": true,
+  "name": "asciidoc-with-gh-pages-action",
+  "version": "0.1.0",
+  "description": "JavaScript Action that generates static websites for GitHub Pages using AsciiDoc",
+  "license": "MIT",
+  "author": {
+    "name": "Eric Löffler",
+    "email": "eric.loeffler@opalia.systems",
+    "url": "https://github.com/brettaufheber"
+  },
+  "homepage": "https://github.com/brettaufheber/asciidoc-with-gh-pages-action#readme",
+  "bugs": {
+    "url": "https://github.com/brettaufheber/asciidoc-with-gh-pages-action/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brettaufheber/asciidoc-with-gh-pages-action.git"
+  },
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node .",
+    "build": "ncc build ./src/index.js -o ./dist --license licenses.txt && node ./node_modules/asciidoc-site-generator/src/makeCopyAssets.js",
+    "test": "jest",
+    "scan": "sonar-scanner"
+  },
+  "dependencies": {
+    "asciidoc-site-generator": "^2.0.x"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.33.x",
+    "jest": "^27.5.x",
+    "jest-sonar-reporter": "^2.0.x",
+    "sonarqube-scanner": "^2.8.x"
+  },
+  "jest": {
+    "verbose": true,
+    "testMatch": [
+      "**/test/src/**/*.test.js"
+    ],
+    "testTimeout": 60000,
+    "testResultsProcessor": "jest-sonar-reporter",
+    "collectCoverage": true,
+    "coverageDirectory": "./tmp/coverage",
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text"
+    ],
+    "collectCoverageFrom": [
+      "**/src/**/*.js",
+      "!**/node_modules/**"
+    ]
+  },
+  "jestSonar": {
+    "reportPath": "./tmp",
+    "reportFile": "test-report.xml",
+    "indent": 4
+  }
+}
