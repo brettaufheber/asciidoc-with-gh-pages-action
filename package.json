@@ -18,13 +18,16 @@
     "url": "git+https://github.com/brettaufheber/asciidoc-with-gh-pages-action.git"
   },
   "main": "./src/index.js",
+  "mainForAction": "dist/index.js",
   "scripts": {
     "start": "node .",
     "build": "ncc build ./src/index.js -o ./dist --license licenses.txt && node ./node_modules/asciidoc-site-generator/src/makeCopyAssets.js",
+    "action.yaml": "node ./src/makeActionYaml.js",
     "test": "jest",
     "scan": "sonar-scanner"
   },
   "dependencies": {
+    "js-yaml": "^4.1.x",
     "asciidoc-site-generator": "^2.0.x"
   },
   "devDependencies": {
