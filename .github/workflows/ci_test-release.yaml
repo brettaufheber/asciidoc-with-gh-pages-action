@@ -1,0 +1,106 @@
+name: npm CI for test and release actions
+
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'feature/**'
+      - 'fix/**'
+  pull_request:
+    branches:
+      - 'develop'
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # shallow clones should be disabled for a better relevancy of analysis
+      - name: Update Node.js to latest stable version
+        run: |
+          sudo npm cache clean -f
+          sudo npm install -g n
+          sudo n stable
+      - name: Install dependencies
+        run: npm ci
+      #     - name: Test project
+      #       run: npm test
+      - name: Perform static code analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cp ./.github/workflows/sonar-project.properties ./
+          npm run scan
+
+  consistency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+      - name: Update Node.js to latest stable version
+        run: |
+          sudo npm cache clean -f
+          sudo npm install -g n
+          sudo n stable
+      - name: Install dependencies
+        run: npm install
+      - name: Compare the expected and actual package-lock.json files
+        run: |
+          if [[ "$(git diff ./package-lock.json | wc -l)" -gt "0" ]]; then
+            echo "The package-lock.json file is not up to date." >&2
+            exit 1
+          fi
+
+  release:
+    needs: [ test, consistency-check ]
+    if: github.event_name == 'push' && github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # shallow clones should be disabled for merge action with release branch
+      - name: Update Node.js to latest stable version
+        run: |
+          sudo npm cache clean -f
+          sudo npm install -g n
+          sudo n stable
+      - name: Install dependencies
+        run: npm ci
+      - name: Perform dry-run of auto-tagging to prepare next steps
+        id: tagging-dry-run
+        uses: brettaufheber/auto-tagging-action@v1
+        with:
+          command: jq -r '.version' package.json
+          dry-run: yes
+      - name: Merge develop branch into release branch
+        run: |
+          git fetch origin release:release
+          git checkout release
+          git merge develop
+      - name: Build project
+        run: |
+          npm run build
+          npm run action.yaml
+      - name: Update release branch
+        env:
+          VERSION: ${{ steps.tagging-dry-run.outputs.version-given }}
+        run: |
+          sed -i 's/^dist\/$/# dist\//' ./.gitignore
+          git add .
+          git commit -m "Build project with version $VERSION"
+      - name: Perform tagging if version has changed
+        id: tagging
+        uses: brettaufheber/auto-tagging-action@v1
+        with:
+          command: jq -r '.version' package.json
+          snapshot-pattern: ^0\.  # major part is 0
+          tag-prefix: v
+          skip-push: yes
+      - name: Push changes if version has changed
+        if: ${{ steps.tagging.outputs.tag-created == 'yes' }}
+        run: git push --follow-tags origin release
