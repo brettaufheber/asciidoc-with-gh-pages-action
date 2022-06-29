@@ -1,5 +1,33 @@
 = asciidoc-with-gh-pages-action
 
+This project is a JavaScript Action that generates static websites for GitHub Pages using AsciiDoc and Handlebars templates.
+It is based on the https://github.com/brettaufheber/asciidoc-site-generator#readme[asciidoc-site-generator] project.
+See the documentation of this static website generator to learn more about how to set up a web project.
+
+== Usage
+
+First, it has to be ensured that this GitHub Action has read and *write* permissions to push changes to a dedicated branch for GitHub Pages.
+Open the repository settings and navigate to "Actions", "General" and in the "Workflow Permissions" section select "Read and Write Permissions".
+
+The link:action.yaml[action.yaml] file contains metadata about this GitHub Action and describes how to use it.
+
+.Example CI code snippet
+[source,yaml]
+----
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+      - name: Build static website
+        uses: brettaufheber/asciidoc-with-gh-pages-action@v1.0.0
+        with:
+          domain: domain.tld
+          branch: gh-pages
+          user: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+----
+
 == MIT License
 
 Copyright (c) 2022 Eric Löffler (brettaufheber)
