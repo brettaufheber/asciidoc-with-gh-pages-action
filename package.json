@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "asciidoc-with-gh-pages-action",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "JavaScript Action that generates static websites for GitHub Pages using AsciiDoc",
   "license": "MIT",
   "author": {
