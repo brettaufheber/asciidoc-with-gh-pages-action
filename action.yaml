@@ -1,0 +1,24 @@
+name: 'asciidoc-with-gh-pages-action'
+description: 'JavaScript Action that generates static websites for GitHub Pages using AsciiDoc'
+author: 'Eric Löffler <eric.loeffler@opalia.systems> (https://github.com/brettaufheber)'
+inputs:
+  resources_paths:
+    description: 'One or more comma separated input directories in which parts of the project are located.'
+    required: false
+    default: './'
+  domain:
+    description: 'The domain name of the website.'
+    required: false
+  branch:
+    description: 'The branch in which the results end up.'
+    required: false
+    default: 'pages'
+  remote_url:
+    description: 'The remote URL to a repository (default is the origin URL configured in the working directory)'
+    required: false
+  user:
+    description: 'The Git user info (defaults is global Git config) (format: Full Name <email@domain.tld>)'
+    required: false
+runs:
+  using: 'node18'
+  main: 'dist/index.js'

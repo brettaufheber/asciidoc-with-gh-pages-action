@@ -35,7 +35,7 @@ hs_err_pid*
 .lib/
 .settings/
 
-dist/
+# dist/
 build/
 out/
 target/
